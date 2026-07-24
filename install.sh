@@ -9,7 +9,7 @@ LA="$HOME/Library/LaunchAgents"
 
 echo "==> Installing Scaffold engine to $DEST"
 mkdir -p "$DEST" "$LA"
-cp "$REPO/engine/"{nudge.py,listen.py,curate.py,schedule.json,mindful.json} "$DEST/"
+cp "$REPO/engine/"{nudge.py,listen.py,curate.py,scan_detect.py,scan_extract.py,schedule.json,mindful.json} "$DEST/"
 chmod +x "$DEST/"*.py
 
 if [ ! -f "$DEST/config.json" ]; then
@@ -20,13 +20,15 @@ else
   echo "==> Keeping existing $DEST/config.json"
 fi
 
-echo "==> Installing cron job for nudges (every 10 minutes)"
+echo "==> Installing cron jobs (nudges every 10 min, note detection every 3 min)"
 NUDGE="*/10 * * * * /usr/bin/python3 $DEST/nudge.py >> $DEST/cron.log 2>&1"
-( crontab -l 2>/dev/null | grep -v 'scaffold/nudge.py' ; echo "$NUDGE" ) | crontab -
+DETECT="*/3 * * * * /usr/bin/python3 $DEST/scan_detect.py >> $DEST/scan_detect.log 2>&1"
+( crontab -l 2>/dev/null | grep -v 'scaffold/nudge.py' | grep -v 'scaffold/scan_detect.py' ; \
+  echo "$NUDGE" ; echo "$DETECT" ) | crontab -
 
-echo "==> Rendering + loading LaunchAgents (listen, curate)"
+echo "==> Rendering + loading LaunchAgents (listen, curate, extract)"
 UID_NUM="$(id -u)"
-for name in listen curate; do
+for name in listen curate extract; do
   PLIST="$LA/com.scaffold.$name.plist"
   sed "s|__HOME__|$HOME|g" "$REPO/launchagents/com.scaffold.$name.plist.template" > "$PLIST"
   launchctl bootout "gui/$UID_NUM/com.scaffold.$name" 2>/dev/null || true
@@ -43,7 +45,6 @@ Done. Next steps:
      (System Settings > Privacy & Security > Full Disk Access > + > Cmd+Shift+G > /usr/sbin/cron).
   4. Text your bot "themes" to confirm it answers, or wait for the next :00/:30 nudge.
 
-Turn it off:  crontab -l | grep -v scaffold/nudge.py | crontab -
-              launchctl bootout gui/$UID_NUM/com.scaffold.listen
-              launchctl bootout gui/$UID_NUM/com.scaffold.curate
+Turn it off:  crontab -l | grep -vE 'scaffold/(nudge|scan_detect).py' | crontab -
+              for a in listen curate extract; do launchctl bootout gui/$UID_NUM/com.scaffold.\$a; done
 EOF

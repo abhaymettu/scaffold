@@ -69,6 +69,8 @@ Three small Python scripts, no framework, no server. State lives in `~/.scaffold
 | `nudge.py` | Every :00 and :30, composes and sends the check-up | cron, every 10 min |
 | `curate.py` | A few times a day, asks Claude to read my notes and distill a realistic task pool | LaunchAgent |
 | `listen.py` | Every minute, checks Telegram for my messages and reacts (commands, mood bias, or the Claude bridge) | LaunchAgent |
+| `scan_detect.py` | Notices which notes I've changed and settled | cron, every 3 min |
+| `scan_extract.py` | Reads those notes with Claude and pulls out hidden tasks | LaunchAgent |
 
 The split is deliberate: the *smart* part (reading my whole vault and picking good tasks) is
 expensive, so it runs a few times a day and writes a small `tasks.json`. The *frequent* part
@@ -77,6 +79,20 @@ expensive, so it runs a few times a day and writes a small `tasks.json`. The *fr
 The mindfulness library (`mindful.json`) is 40 lines, half from named voices in the
 contemplative tradition (Marcus Aurelius, Seneca, Thich Nhat Hanh, Pema Chödrön, and others)
 and half written by me, each tagged with the mental loop it's meant to interrupt.
+
+### Nothing I write down gets lost
+
+The part I'm proudest of: I dump thoughts into notes all day and then forget they contained
+anything I meant to do. So Scaffold watches my whole vault. When I change a note and stop
+editing it, the detector queues it, and Claude reads it and pulls out any task it implies,
+even the ones I didn't write as tasks. "been meaning to renew the domain" becomes a task.
+"AI is moving so fast" does not. Those candidates quietly join the curator's pool and may
+show up in a future nudge. I never have to file them. I just have to have thought them once.
+
+The detection is split on purpose: `scan_detect.py` runs on cron (which can read an iCloud
+vault) and only does cheap file-change checks; `scan_extract.py` runs on a LaunchAgent (which
+can reach Claude) and only runs when there's actually something new. It debounces, so it never
+scans a note you're mid-sentence in, and it costs almost nothing when you're not writing.
 
 ---
 

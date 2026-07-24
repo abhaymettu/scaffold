@@ -7,6 +7,10 @@ caught.json
 pause.json
 thread.json
 tg_offset
+candidates.json
+pending.json
+detect_state.json
+scan_state.json
 *.lock
 
 # Rendered LaunchAgents (contain absolute home paths)
