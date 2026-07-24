@@ -128,6 +128,22 @@ scans a note you're mid-sentence in, and it costs almost nothing when you're not
 
 ---
 
+## Capture ideas from anywhere
+
+`brain-capture` (installed to `~/.local/bin`) drops a summary into today's inbox from any
+shell:
+
+```bash
+printf '%s\n' "A CLI that captures ideas from any terminal.
+- pipes a summary into the daily inbox
+- open question: dedupe repeated ideas?" | brain-capture --title "Idea title"
+```
+
+Point any Claude Code session at it by adding a note to your global `~/.claude/CLAUDE.md`
+("to save an idea, discuss it, write a clean summary, and pipe it to `brain-capture`"), and
+then in any repo you can say "let's talk through this idea and capture it." The Telegram bot
+does the same: text it an idea and it saves a clean summary.
+
 ## Setup
 
 **You need:** a Mac, Python 3, [Claude Code](https://claude.com/claude-code) installed and

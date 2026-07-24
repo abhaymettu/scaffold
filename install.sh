@@ -12,6 +12,11 @@ mkdir -p "$DEST" "$LA"
 cp "$REPO/engine/"{nudge.py,listen.py,curate.py,scan_detect.py,scan_extract.py,schedule.json,mindful.json} "$DEST/"
 chmod +x "$DEST/"*.py
 
+echo "==> Installing the brain-capture command to ~/.local/bin"
+mkdir -p "$HOME/.local/bin"
+cp "$REPO/engine/brain-capture" "$HOME/.local/bin/brain-capture"
+chmod +x "$HOME/.local/bin/brain-capture"
+
 if [ ! -f "$DEST/config.json" ]; then
   cp "$REPO/engine/config.example.json" "$DEST/config.json"
   chmod 600 "$DEST/config.json"

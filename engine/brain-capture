@@ -1,0 +1,85 @@
+#!/usr/bin/env python3
+"""brain-capture: append an idea/summary to today's Obsidian daily inbox.
+
+Any Claude Code instance (or the Telegram bridge) can call this to save a clean
+summary into your second brain without knowing the vault layout.
+
+Usage:
+  brain-capture --title "Idea title" [--source terminal] <<'EOF'
+  The gist in a few lines.
+  - key point
+  - open question
+  EOF
+
+Body comes from stdin (preferred) or --body. Reads the vault path from
+~/.scaffold/config.json (falls back to $BRAIN_VAULT).
+"""
+import argparse
+import json
+import os
+import sys
+from datetime import datetime
+
+HOME = os.path.expanduser("~")
+
+
+def vault_path():
+    v = os.environ.get("BRAIN_VAULT")
+    if v:
+        return v
+    cfg = os.path.join(HOME, ".scaffold", "config.json")
+    if os.path.exists(cfg):
+        try:
+            with open(cfg) as f:
+                return json.load(f).get("vault_path", "")
+        except (json.JSONDecodeError, OSError):
+            pass
+    return ""
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--title", default="Idea")
+    ap.add_argument("--source", default="terminal")
+    ap.add_argument("--body", default=None)
+    args = ap.parse_args()
+
+    body = args.body if args.body is not None else sys.stdin.read()
+    body = body.strip()
+    if not body:
+        sys.stderr.write("brain-capture: empty body, nothing to save\n")
+        sys.exit(1)
+
+    vault = vault_path()
+    if not vault or not os.path.isdir(vault):
+        sys.stderr.write(f"brain-capture: vault not found ({vault!r})\n")
+        sys.exit(1)
+
+    now = datetime.now()
+    daily_dir = os.path.join(vault, "00-Inbox", "Daily")
+    os.makedirs(daily_dir, exist_ok=True)
+    note = os.path.join(daily_dir, now.strftime("%Y-%m-%d") + ".md")
+
+    if not os.path.exists(note):
+        header = (
+            f'---\ntitle: "Inbox - {now.strftime("%Y-%m-%d")}"\n'
+            f'created: "{now.strftime("%Y-%m-%d")}"\ntype: daily-inbox\n'
+            "tags:\n  - inbox\n  - capture\n---\n\n"
+            f'# Inbox - {now.strftime("%Y-%m-%d")}\n\n## Captures\n'
+        )
+        with open(note, "w") as f:
+            f.write(header)
+
+    entry = (
+        f'\n**{now.strftime("%H:%M")} — {args.title}** `#capture #idea`\n\n'
+        f"{body}\n\n"
+        f"*(captured via {args.source})*\n"
+    )
+    with open(note, "a") as f:
+        f.write(entry)
+
+    print(f"Captured '{args.title}' to {os.path.relpath(note, vault)}")
+
+
+if __name__ == "__main__":
+    main()
