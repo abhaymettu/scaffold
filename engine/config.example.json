@@ -1,0 +1,7 @@
+{
+  "_comment": "Copy this to config.json (in ~/.scaffold), then fill it in. NEVER commit config.json or put it in a synced folder: it holds your Telegram token.",
+  "telegram_bot_token": "PASTE_FROM_BOTFATHER",
+  "telegram_chat_id": "PASTE_YOUR_CHAT_ID",
+  "vault_path": "/Users/YOU/path/to/your/Obsidian/Vault",
+  "fallback_macos_notification": true
+}

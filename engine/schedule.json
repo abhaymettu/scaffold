@@ -1,0 +1,23 @@
+{
+  "_comment": "Fires every :00 and :30 within active_hours. tone_by_hour sets firmness; overrides replace the message at specific slots. Edit freely, the engine re-reads it each run.",
+  "active_hours": { "start": "08:00", "end": "22:00" },
+  "cadence_minutes": 30,
+  "tone_by_hour": [
+    { "from": "08:00", "to": "09:29", "tone": "gentle" },
+    { "from": "09:30", "to": "12:29", "tone": "firm" },
+    { "from": "12:30", "to": "14:29", "tone": "gentle" },
+    { "from": "14:30", "to": "18:29", "tone": "firm" },
+    { "from": "18:30", "to": "22:00", "tone": "gentle" }
+  ],
+  "generic": {
+    "firm": "Half-hour check. What are you doing right now? If it isn't a must-do, switch. Pick one open item and put 25 minutes in.",
+    "gentle": "Quick check-in. Still moving? If you drifted, no guilt, just pick the next thing. If you're heads-down, ignore me and keep going."
+  },
+  "overrides": [
+    { "time": "08:30", "tone": "gentle", "msg": "Morning. Here's today's plan. Don't do it all, just pick the first block and start. Which one?" },
+    { "time": "12:00", "tone": "firm", "msg": "Midday. What have you actually finished? If you're stuck on one thing, switch to the next must-do." },
+    { "time": "14:00", "tone": "gentle", "msg": "Pause. Stand up, breathe for a minute, water. When you sit back down, switch to a fresh task instead of grinding the same one." },
+    { "time": "18:00", "tone": "firm", "msg": "Accountability check. Did today's must-dos move? Yes or no. Close the gap before you eat." },
+    { "time": "21:00", "tone": "gentle", "msg": "Winding down. Mark what got done, no guilt about what didn't." }
+  ]
+}
