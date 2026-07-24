@@ -76,6 +76,38 @@ The split is deliberate: the *smart* part (reading my whole vault and picking go
 expensive, so it runs a few times a day and writes a small `tasks.json`. The *frequent* part
 (the nudge itself) just reads that file and is basically free.
 
+```mermaid
+flowchart TD
+    subgraph vault[Your Obsidian vault]
+        notes[Notes and daily plan]
+    end
+
+    notes -->|cron, reads iCloud| detect[scan_detect.py<br/>find changed and settled notes]
+    detect -->|queue| pending[(pending.json)]
+    pending -->|LaunchAgent + Claude| extract[scan_extract.py<br/>pull out hidden tasks]
+    extract --> candidates[(candidates.json)]
+
+    notes -->|LaunchAgent + Claude| curate[curate.py<br/>distill a realistic task pool]
+    candidates --> curate
+    curate --> pool[(tasks.json)]
+
+    pool --> nudge[nudge.py<br/>compose the check-up]
+    schedule[(schedule.json)] --> nudge
+    mindful[(mindful.json)] --> nudge
+    nudge -->|cron, every :00 and :30| phone([Your phone via Telegram])
+
+    phone -->|you text back| listen[listen.py<br/>commands, mood bias, or the bridge]
+    listen -->|freeform| bridge[Claude bridge<br/>answer and edit files]
+    bridge -.edits.-> schedule
+    bridge -.edits.-> notes
+    listen -.mood bias.-> nudge
+```
+
+Two rules of thumb hold the whole thing together. **Cron for anything that reads the vault**
+(it has Full Disk Access to iCloud); **LaunchAgents for anything that calls Claude** (they run
+in your login session, where the credentials live). Every box above lands on one side or the
+other of that line.
+
 The mindfulness library (`mindful.json`) is 40 lines, half from named voices in the
 contemplative tradition (Marcus Aurelius, Seneca, Thich Nhat Hanh, Pema Chödrön, and others)
 and half written by me, each tagged with the mental loop it's meant to interrupt.
