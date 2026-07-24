@@ -43,6 +43,17 @@ def main():
     inbox = os.path.join(vault, "00-Inbox", "Daily", now.strftime("%Y-%m-%d") + ".md")
     sidequests = os.path.join(vault, "03-Resources", "Side-Quests.md")
 
+    # Candidate tasks the scanner pulled from recently-changed notes (may be empty).
+    cands = load_json(os.path.join(BASE, "candidates.json")) or []
+    cand_block = ""
+    if cands:
+        lines = "\n".join(f"- {c['text']} (from {c.get('source', '?')})" for c in cands[-15:])
+        cand_block = (
+            "\n- Candidate tasks the scanner pulled from recently-changed notes. Fold in the "
+            "genuinely useful ones, ignore anything stale, duplicated, or already done:\n"
+            f"{lines}\n"
+        )
+
     prompt = (
         "Curate a short, realistic task pool for the user for right now. Read their real "
         "notes first, using the Read and Glob tools:\n"
@@ -50,7 +61,8 @@ def main():
         f"- Today's captured thoughts (their own words): {inbox}\n"
         f"- Active work: glob {vault}/01-Projects/*.md and {vault}/02-Areas/*.md and read the "
         "lines under '## High Priority' and '## Next Actions / Current Tasks' headings.\n"
-        f"- Side-quest pool: {sidequests}\n\n"
+        f"- Side-quest pool: {sidequests}\n"
+        f"{cand_block}\n"
         "Context: the user has ADHD and struggles with follow-through. Favor concrete tasks "
         "that take 15 to 45 minutes and can be started now. Pull from their ACTUAL notes and "
         "captured thoughts, not invented work. Do not pile on more of whatever they already "
