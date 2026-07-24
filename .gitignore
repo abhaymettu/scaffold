@@ -1,0 +1,18 @@
+# Never commit secrets or personal runtime state
+config.json
+*.log
+*.err
+tasks.json
+caught.json
+pause.json
+thread.json
+tg_offset
+*.lock
+
+# Rendered LaunchAgents (contain absolute home paths)
+launchagents/*.plist
+
+# Python
+__pycache__/
+*.pyc
+.DS_Store
