@@ -23,6 +23,10 @@ feel motivated. It just keeps showing up, which is the one thing I could never d
 
 ## What it actually feels like
 
+<p align="center">
+  <img src="assets/demo.gif" alt="Scaffold texting a nudge, taking a mood-bias reply, and answering a question" width="360">
+</p>
+
 Every half hour my phone buzzes with something like this:
 
 ```
