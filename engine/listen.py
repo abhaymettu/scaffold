@@ -187,7 +187,12 @@ def claude_bridge(cfg, text, now):
         f"- Nudge schedule: {SCHEDULE_PATH}. JSON with active_hours (start,end), cadence_minutes, "
         "tone_by_hour (from,to,tone where tone is 'gentle' or 'firm'), overrides (time,tone,msg).\n"
         f"- Today's plan (Obsidian markdown): {plan_path}. Tasks look like "
-        "'- [ ] [[Page]] text `#tags`' under '## Must-Do', '## Should-Do', '## Quick Wins'.\n\n"
+        "'- [ ] [[Page]] text `#tags`' under '## Must-Do', '## Should-Do', '## Quick Wins'.\n"
+        "- Capturing an idea: if the user shares an idea or says capture/remember/note this, "
+        "write a clean summary (a short title, the gist in 2 to 4 lines, key points, open "
+        "questions) and save it by running the shell command "
+        "`brain-capture --title \"...\" --source telegram` with the summary piped to its stdin. "
+        "It appends to today's daily inbox. Then confirm briefly.\n\n"
         "Rules: Use the conversation above. If a task was rejected, do not suggest it again and "
         "remove or replace it in the plan. If the user says they did something, believe them. To "
         "change nudge frequency set cadence_minutes; for quiet windows edit active_hours. Never "
@@ -196,7 +201,7 @@ def claude_bridge(cfg, text, now):
         "Make any needed edit, then output ONLY the reply to send back."
     )
     cmd = [CLAUDE_BIN, "-p", prompt, "--output-format", "json",
-           "--permission-mode", "acceptEdits", "--allowedTools", "Read,Edit,Write",
+           "--permission-mode", "acceptEdits", "--allowedTools", "Read,Edit,Write,Bash",
            "--add-dir", BASE]
     if vault:
         cmd += ["--add-dir", vault]
